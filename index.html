@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador Vigía Plagas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --azul: #1a4f8b; --verde: #25d366; --borde: #cbd5e1; }
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { width: 100%; max-width: 480px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { color: var(--azul); text-align: center; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #475569; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 12px; border: 2px solid var(--borde); border-radius: 10px; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .check { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid var(--borde); border-radius: 10px; margin-top: 10px; }
+        .check.active { background: #e8fdf0; border-color: var(--verde); color: #15803d; }
+        #resultado { display: none; background: #f8fafc; padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center; border: 2px dashed var(--azul); }
+        .precio { font-size: 2rem; color: var(--azul); font-weight: bold; display: block; }
+        .btn-ws { background: var(--verde); color: white; text-decoration: none; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold; margin-top: 15px; }
+        button { width: 100%; background: var(--azul); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2><i class="fas fa-shield-virus"></i> Vigía Plagas</h2>
+    
+    <div class="input-group">
+        <label>Tipo de Plaga</label>
+        <select id="plaga" onchange="reset()">
+            <option value="5000">Cucarachas / Hormigas</option>
+            <option value="7000">Roedores</option>
+            <option value="9000">Termitas / Madera</option>
+            <option value="6500">Desinfección</option>
+        </select>
+    </div>
+
+    <div class="grid">
+        <div class="input-group"><label>Ambientes</label><input type="number" id="amb" value="1" oninput="reset()"></div>
+        <div class="input-group"><label>Metros²</label><input type="number" id="mts" value="30" oninput="reset()"></div>
+    </div>
+
+    <div class="grid">
+        <div class="input-group"><label>Barrio / Zona</label><input type="text" id="barrio" placeholder="Ej: Centro" oninput="reset()"></div>
+        <div class="input-group"><label>Fecha sugerida</label><input type="date" id="fecha" oninput="reset()"></div>
+    </div>
+
+    <div id="check-box" class="check" onclick="toggle()">
+        <i id="ico" class="far fa-square"></i>
+        <span style="font-size: 0.8rem;">Acepto protocolo (Área libre 2hs)</span>
+    </div>
+
+    <button onclick="calcular()">CALCULAR PRESUPUESTO</button>
+
+    <div id="resultado">
+        <small>Presupuesto Estimado:</small>
+        <span class="precio" id="total">$0.00</span>
+        <a href="#" id="ws" target="_blank" class="btn-ws"><i class="fab fa-whatsapp"></i> ENVIAR A WHATSAPP</a>
+    </div>
+</div>
+
+<script>
+    let ok = false;
+    function reset() { document.getElementById('resultado').style.display = 'none'; }
+    function toggle() {
+        ok = !ok;
+        document.getElementById('check-box').classList.toggle('active');
+        document.getElementById('ico').className = ok ? 'fas fa-check-square' : 'far fa-square';
+        reset();
+    }
+    function calcular() {
+        const b = document.getElementById('barrio').value;
+        if(!ok || !b) return alert("Acepta el protocolo e ingresa tu barrio.");
+        
+        let t = parseFloat(document.getElementById('plaga').value) + (parseInt(document.getElementById('amb').value) * 500);
+        let m = parseInt(document.getElementById('mts').value);
+        if(m > 50) t += (m - 50) * 50;
+
+        document.getElementById('total').innerText = `$${t.toLocaleString('es-AR')}`;
+        document.getElementById('resultado').style.display = 'block';
+
+        const p = document.getElementById('plaga').options[document.getElementById('plaga').selectedIndex].text;
+        const f = document.getElementById('fecha').value.split('-').reverse().join('/') || "A convenir";
+        const msg = `Hola Vigía Plagas!%0A*SERVICIO:* ${p}%0A*BARRIO:* ${b}%0A*MTS:* ${m}m2%0A*FECHA:* ${f}%0A*TOTAL:* $${t}`;
+        document.getElementById('ws').href = `https://wa.me/5493518087250?text=${msg}`;
+    }
+</script>
+</body>
+</html>
